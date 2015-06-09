@@ -1,7 +1,5 @@
-# fullcalendar-utils
-This repository contains small extensions of Adam Shaw's FullCalendar jQuery plugin:
+# fullcalendar-rightclick.js
 
-## fullcalendar-rightclick.js
 This small file adds two new callbacks to FullCalendar:
 
     dayRightclick(date, jsEvent, view)
