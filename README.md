@@ -24,3 +24,7 @@ You can then define the callbacks in FullCalendar's options dictionary:
             return false;
         }
     });
+
+## Live example
+
+https://jsfiddle.net/a17kuyL0/
