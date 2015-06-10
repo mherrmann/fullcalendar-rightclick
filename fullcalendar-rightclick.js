@@ -17,14 +17,12 @@
 		var that = this;
 		this.el.on('contextmenu', '.fc-widget-content .fc-slats',
 			function(ev) {
-				return that.triggerDayRightclick(ev);
+				that.coordMap.build();
+				var cell = that.coordMap.getCell(ev.pageX, ev.pageY);
+				if (cell)
+					return that.trigger('dayRightclick', null, cell.start, ev);
 			}
 		);
-	};
-	AgendaView.prototype.triggerDayRightclick = function(ev) {
-		this.coordMap.build();
-		var cell = this.coordMap.getCell(ev.pageX, ev.pageY);
-		return this.trigger('dayRightclick', null, cell.start, ev);
 	};
 	AgendaView.prototype.registerEventRightclickListener = function() {
 		var that = this;
