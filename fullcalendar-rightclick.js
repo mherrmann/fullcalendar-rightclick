@@ -1,5 +1,5 @@
 /*!
- * fullcalendar-rightclick v1.0
+ * fullcalendar-rightclick v1.1
  * Docs & License: https://github.com/mherrmann/fullcalendar-rightclick
  * (c) 2015 Michael Herrmann
  */
