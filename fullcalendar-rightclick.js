@@ -1,13 +1,15 @@
 /*!
- * fullcalendar-rightclick v1.2
+ * fullcalendar-rightclick v1.3
  * Docs & License: https://github.com/mherrmann/fullcalendar-rightclick
  * (c) 2015 Michael Herrmann
  */
 
 (function($) {
 	function monkeyPatchViewClass(View, dayCssClass) {
-		var originalRender = View.prototype.render;
-		View.prototype.render = function() {
+		View = View.class || View;
+		var renderFn = 'render' in View.prototype ? 'render' : 'renderDates';
+		var originalRender = View.prototype[renderFn];
+		View.prototype[renderFn] = function() {
 			originalRender.call(this);
 			this.registerDayRightclickListener();
 			this.registerEventRightclickListener();
