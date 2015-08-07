@@ -1,22 +1,29 @@
 /*!
- * fullcalendar-rightclick v1.3
+ * fullcalendar-rightclick v1.4
  * Docs & License: https://github.com/mherrmann/fullcalendar-rightclick
  * (c) 2015 Michael Herrmann
  */
 
 (function($) {
-	function monkeyPatchViewClass(View, dayCssClass) {
+	function monkeyPatchViewClass(View, dayCssClasses) {
 		View = View.class || View;
 		var renderFn = 'render' in View.prototype ? 'render' : 'renderDates';
 		var originalRender = View.prototype[renderFn];
 		View.prototype[renderFn] = function() {
 			originalRender.call(this);
-			this.registerDayRightclickListener();
-			this.registerEventRightclickListener();
+			if (! this.el.data('fullcalendar-rightclick')) {
+				this.registerDayRightclickListener();
+				this.registerEventRightclickListener();
+				this.el.data('fullcalendar-rightclick', true)
+			}
 		};
 		View.prototype.registerDayRightclickListener = function() {
 			var that = this;
-			this.el.on('contextmenu', '.fc-widget-content ' + dayCssClass,
+			var daySelectors = [];
+			for (var i=0; i < dayCssClasses.length; i++)
+				daySelectors.push('.fc-widget-content ' + dayCssClasses[i]);
+			var daySelector = daySelectors.join(', ');
+			this.el.on('contextmenu', daySelector,
 				function(ev) {
 					that.coordMap.build();
 					var cell = that.coordMap.getCell(ev.pageX, ev.pageY);
@@ -36,6 +43,8 @@
 		}
 	}
 	var fc = $.fullCalendar;
-	monkeyPatchViewClass(fc.views.agenda, '.fc-slats');
-	monkeyPatchViewClass(fc.views.basic, '.fc-content-skeleton');
+	monkeyPatchViewClass(fc.views.agenda, [
+		'.fc-slats', '.fc-content-skeleton', '.fc-bg'
+	]);
+	monkeyPatchViewClass(fc.views.basic, ['.fc-content-skeleton', '.fc-bg']);
 })(jQuery);
