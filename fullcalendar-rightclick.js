@@ -5,26 +5,25 @@
  */
 
 (function($) {
-	function monkeyPatchViewClass(View, dayCssClasses) {
+	function monkeyPatchViewClass(View) {
 		View = View.class || View;
 		var renderFn = 'render' in View.prototype ? 'render' : 'renderDates';
 		var originalRender = View.prototype[renderFn];
 		View.prototype[renderFn] = function() {
 			originalRender.call(this);
 			if (! this.el.data('fullcalendar-rightclick')) {
-				this.registerDayRightclickListener();
-				this.registerEventRightclickListener();
+				this.registerRightclickListener();
 				this.el.data('fullcalendar-rightclick', true)
 			}
 		};
-		View.prototype.registerDayRightclickListener = function() {
+		View.prototype.registerRightclickListener = function() {
 			var that = this;
-			var daySelectors = [];
-			for (var i=0; i < dayCssClasses.length; i++)
-				daySelectors.push('.fc-widget-content ' + dayCssClasses[i]);
-			var daySelector = daySelectors.join(', ');
-			this.el.on('contextmenu', daySelector,
-				function(ev) {
+			this.el.on('contextmenu', function(ev) {
+				var eventElt = $(ev.target).closest('.fc-event');
+				if (eventElt.length) {
+					var seg = eventElt.data('fc-seg');
+					return that.trigger('eventRightclick', this, seg.event, ev);
+				} else {
 					that.coordMap.build();
 					var cell = that.coordMap.getCell(ev.pageX, ev.pageY);
 					if (cell)
@@ -32,19 +31,10 @@
 							'dayRightclick', null, cell.start, ev
 						);
 				}
-			);
-		};
-		View.prototype.registerEventRightclickListener = function() {
-			var that = this;
-			this.el.on('contextmenu', '.fc-event-container > *', function(ev) {
-				var seg = $(this).data('fc-seg');
-				return that.trigger('eventRightclick', this, seg.event, ev);
 			});
 		}
 	}
 	var fc = $.fullCalendar;
-	monkeyPatchViewClass(fc.views.agenda, [
-		'.fc-slats', '.fc-content-skeleton', '.fc-bg'
-	]);
-	monkeyPatchViewClass(fc.views.basic, ['.fc-content-skeleton', '.fc-bg']);
+	monkeyPatchViewClass(fc.views.agenda);
+	monkeyPatchViewClass(fc.views.basic);
 })(jQuery);
