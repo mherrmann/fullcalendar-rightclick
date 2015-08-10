@@ -1,5 +1,5 @@
 /*!
- * fullcalendar-rightclick v1.4
+ * fullcalendar-rightclick v1.5
  * Docs & License: https://github.com/mherrmann/fullcalendar-rightclick
  * (c) 2015 Michael Herrmann
  */
@@ -24,12 +24,22 @@
 					var seg = eventElt.data('fc-seg');
 					return that.trigger('eventRightclick', this, seg.event, ev);
 				} else {
-					that.coordMap.build();
-					var cell = that.coordMap.getCell(ev.pageX, ev.pageY);
-					if (cell)
-						return that.trigger(
-							'dayRightclick', null, cell.start, ev
-						);
+					// Users of this library may add custom content inside
+					// FullCalendar's DOM structure, eg. popovers. We don't want
+					// to catch rightclicks on these custom elements, so we
+					// check that the clicked element actually lies inside one
+					// of FullCalendars default containers:
+					var fcContainer = $(ev.target).closest(
+						'.fc-bg, .fc-slats, .fc-content-skeleton'
+					);
+					if (fcContainer.length) {
+						that.coordMap.build();
+						var cell = that.coordMap.getCell(ev.pageX, ev.pageY);
+						if (cell)
+							return that.trigger(
+								'dayRightclick', null, cell.start, ev
+							);
+					}
 				}
 			});
 		}
