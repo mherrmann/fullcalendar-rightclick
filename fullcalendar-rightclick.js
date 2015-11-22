@@ -1,5 +1,5 @@
 /*!
- * fullcalendar-rightclick v1.5
+ * fullcalendar-rightclick v1.6
  * Docs & License: https://github.com/mherrmann/fullcalendar-rightclick
  * (c) 2015 Michael Herrmann
  */
@@ -30,7 +30,8 @@
 					// check that the clicked element actually lies inside one
 					// of FullCalendars default containers:
 					var fcContainer = $(ev.target).closest(
-						'.fc-bg, .fc-slats, .fc-content-skeleton'
+						'.fc-bg, .fc-slats, .fc-content-skeleton, ' +
+						'.fc-bgevent-skeleton'
 					);
 					if (fcContainer.length) {
 						that.coordMap.build();
