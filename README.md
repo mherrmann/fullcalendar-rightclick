@@ -25,6 +25,11 @@ You can then define the callbacks in FullCalendar's options dictionary:
         }
     });
 
+The script is known to work with FullCalendar versions 2.3.1 - 2.6.1 but is likely to also work with later versions.
+
 ## Live example
 
 https://jsfiddle.net/a17kuyL0/
+
+## Contributing
+When you submit a pull request, please make sure that the plugin still works with *each* FullCalendar version >= 2.3.1 ie. test it with 2.3.1, 2.3.2, 2.4.0, ... . The `demo.html` page in the repository makes testing very easy. Finally, please follow the same coding conventions as in the existing code, in particular the use of tabs instead of spaces.

@@ -1,5 +1,5 @@
 /*!
- * fullcalendar-rightclick v1.6
+ * fullcalendar-rightclick v1.7
  * Docs & License: https://github.com/mherrmann/fullcalendar-rightclick
  * (c) 2015 Michael Herrmann
  */
@@ -34,8 +34,17 @@
 						'.fc-bgevent-skeleton'
 					);
 					if (fcContainer.length) {
-						that.coordMap.build();
-						var cell = that.coordMap.getCell(ev.pageX, ev.pageY);
+						var cell;
+						if (that.coordMap) {
+							// FullCalendar < 2.5.0:
+							that.coordMap.build();
+							cell = that.coordMap.getCell(ev.pageX, ev.pageY);
+						} else {
+							// FullCalendar >= 2.5.0:
+							that.prepareHits();
+							var hit = that.queryHit(ev.pageX, ev.pageY);
+							cell = that.getHitSpan(hit);
+						}
 						if (cell)
 							return that.trigger(
 								'dayRightclick', null, cell.start, ev
