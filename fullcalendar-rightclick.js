@@ -1,5 +1,5 @@
 /*!
- * fullcalendar-rightclick v1.7
+ * fullcalendar-rightclick v1.8
  * Docs & License: https://github.com/mherrmann/fullcalendar-rightclick
  * (c) 2015 Michael Herrmann
  */
@@ -31,7 +31,7 @@
 					// of FullCalendars default containers:
 					var fcContainer = $(ev.target).closest(
 						'.fc-bg, .fc-slats, .fc-content-skeleton, ' +
-						'.fc-bgevent-skeleton'
+						'.fc-bgevent-skeleton, .fc-highlight-skeleton'
 					);
 					if (fcContainer.length) {
 						var cell;
