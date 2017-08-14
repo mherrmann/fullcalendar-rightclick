@@ -1,5 +1,5 @@
 /*!
- * fullcalendar-rightclick v1.8
+ * fullcalendar-rightclick v1.9
  * Docs & License: https://github.com/mherrmann/fullcalendar-rightclick
  * (c) 2015 Michael Herrmann
  */
@@ -19,7 +19,7 @@
 		View.prototype.registerRightclickListener = function() {
 			var that = this;
 			// FullCalendar > 3.0.1:
-            var trigger = typeof that.publiclyTrigger === 'function' ? 'publiclyTrigger' : 'trigger';
+			var trigger = typeof that.publiclyTrigger === 'function' ? 'publiclyTrigger' : 'trigger';
 			this.el.on('contextmenu', function(ev) {
 				var eventElt = $(ev.target).closest('.fc-event');
 				if (eventElt.length) {
