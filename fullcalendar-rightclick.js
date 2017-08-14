@@ -18,11 +18,13 @@
 		};
 		View.prototype.registerRightclickListener = function() {
 			var that = this;
+			// FullCalendar > 3.0.1:
+            var trigger = typeof that.publiclyTrigger === 'function' ? 'publiclyTrigger' : 'trigger';
 			this.el.on('contextmenu', function(ev) {
 				var eventElt = $(ev.target).closest('.fc-event');
 				if (eventElt.length) {
 					var seg = eventElt.data('fc-seg');
-					return that.trigger('eventRightclick', this, seg.event, ev);
+					return that[trigger]('eventRightclick', this, seg.event, ev);
 				} else {
 					// Users of this library may add custom content inside
 					// FullCalendar's DOM structure, eg. popovers. We don't want
@@ -46,7 +48,7 @@
 							cell = that.getHitSpan(hit);
 						}
 						if (cell)
-							return that.trigger(
+							return that[trigger](
 								'dayRightclick', null, cell.start, ev
 							);
 					}
