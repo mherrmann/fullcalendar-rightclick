@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>fullcalendar-rightclick.js qUnit test</title>
+	<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.9.1.css">
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.js'></script>
+	<script src='https://code.jquery.com/jquery-2.1.3.js'></script>
+	<link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.css' rel='stylesheet' />
+</head>
+<body>
+	<div id="qunit"></div>
+	<div id="qunit-fixture"></div>
+	<script src="https://code.jquery.com/qunit/qunit-2.9.1.js"></script>
+</body>
+</html>
+
+<script>
+	var versions = [
+		'3.10.0',
+		'3.9.0',
+		'3.8.2',
+		'3.8.1',
+		'3.8.0',
+		'3.7.0',
+		'3.6.2',
+		'3.6.1',
+		'3.6.0',
+		'3.5.1',
+		'3.5.0',
+		'3.4.0',
+		'3.3.1',
+		'3.3.0',
+		'3.2.0',
+		'3.1.0',
+		'3.0.1',
+		'3.0.0',
+		'2.9.1',
+		'2.9.0',
+		'2.8.0',
+		'2.7.3',
+		'2.7.2',
+		'2.7.1',
+		'2.7.0',
+		'2.6.1',
+		'2.6.0',
+		'2.5.0',
+		'2.4.0',
+		'2.3.2',
+		'2.3.1',
+		'2.3.0',
+	];
+
+	function loadScript(filename) {
+		return new Promise(function (resolve, reject) {
+			var script = document.createElement('script');
+			script.type = 'text/javascript';
+			script.onload = resolve;
+			script.onerror = reject;
+			script.src = filename;
+			document.getElementsByTagName("head")[0].appendChild(script);
+		});
+	}
+
+	function setVersion(version) {
+		delete window.FullCalendar;
+		delete jQuery.fullCalendar;
+
+		return loadScript("https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/" + version + "/fullcalendar.js");
+	}
+
+	versions.forEach(function(version) {
+		var events = {
+			dayRightclick: null,
+			eventRightclick: null,
+			el: null
+		}
+		QUnit.module('FullCalendar version: ' + version, {
+			before: function() {
+				return setVersion(version).then(function() {
+					return loadScript("fullcalendar-rightclick.js");
+				});
+			},
+			beforeEach: function() {
+				events.eventRightclick = events.dayRightclick = function(date, jsEvent, view) {
+					throw new Error("Event not intercepted");
+				},
+				events.el = $('#qunit-fixture').append('<div></div>');
+				events.el.fullCalendar({
+					dayRightclick: function(date, jsEvent, view) {
+						events.dayRightclick(date, jsEvent, view);
+						return false;
+					},
+					eventRightclick: function(event, jsEvent, view) {
+						events.eventRightclick(event, jsEvent, view);
+						return false;
+					},
+					defaultDate: '2015-02-12',
+					editable: true,
+					eventLimit: true,
+					events: [
+						{
+							title: 'All Day Event',
+							start: '2015-02-01'
+						},
+					],
+				})
+			}
+		}, function() {
+			QUnit.test('loads', function(assert) {
+				let v = version;
+				// For whatever reason, it looks like FullCalendar
+				// didn't run the templater for these versions,
+				// so the release has the tag instead of the version.
+				if (v === '2.9.1') {
+					v = '<%= meta.version %>';
+				} if (v === '3.7.0') {
+					v = '<%= version %>';
+				}
+				assert.equal(jQuery.fullCalendar.version, v);
+			});
+			QUnit.test('right-click on event', function(assert) {
+				var done = assert.async();
+				events.eventRightclick = function(event) {
+					assert.equal(typeof event, 'object', 'receives the event object');
+					assert.equal(typeof event.title, 'string', 'event object has title');
+					done();
+				}
+				events.el.find(".fc-event").trigger("contextmenu");
+			})
+			QUnit.test('right-click on day', function(assert) {
+				var done = assert.async();
+				events.dayRightclick = function(date) {
+					assert.ok(moment.isMoment(date), 'receives the date')
+					done();
+				}
+				var ev = jQuery.Event("contextmenu");
+				// qUnit fixture is located 10000 px off screen in X and Y coordinates
+				// 235x360 is a location on the calendar that's not on an event.
+				ev.pageX = 235 - 10000;
+				ev.pageY = 360 - 10000;
+				events.el.find(".fc-day").trigger(ev);
+			})
+		});
+	});
+</script>
+<style>
+</style>

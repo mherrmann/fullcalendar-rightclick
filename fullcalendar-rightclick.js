@@ -16,15 +16,43 @@
 				this.el.data('fullcalendar-rightclick', true)
 			}
 		};
+		function trigger() {
+			throw new Error("trigger not detected");
+		}
+		function oldTrigger(triggerFn) {
+			return function trigger(that, jsEventName, view, dateOrEvent, jsEvent) {
+				return that[triggerFn](jsEventName, view, dateOrEvent, jsEvent)
+			}
+		}
+		if (typeof View.prototype.publiclyTrigger === 'function') {
+			if (View.prototype.publiclyTrigger.toString().match(/name, thisObj/)) {
+				// FullCalendar >= 3.1.0 && < 3.5.0:
+				trigger = oldTrigger('publiclyTrigger');
+			}
+			else {
+				// FullCalendar >= 3.5.0:
+				trigger = function (that, jsEventName, view, dateOrEvent, jsEvent) {
+					return that.publiclyTrigger(jsEventName, [ dateOrEvent, jsEvent, view ]);
+				}
+			}
+		} else {
+			// FullCalendar < 3.1.0:
+			trigger = oldTrigger('trigger')
+		}
 		View.prototype.registerRightclickListener = function() {
 			var that = this;
 			// FullCalendar > 3.0.1:
-			var trigger = typeof that.publiclyTrigger === 'function' ? 'publiclyTrigger' : 'trigger';
 			this.el.on('contextmenu', function(ev) {
 				var eventElt = $(ev.target).closest('.fc-event');
 				if (eventElt.length) {
 					var seg = eventElt.data('fc-seg');
-					return that[trigger]('eventRightclick', this, seg.event, ev);
+					var event;
+					if (typeof seg.event === 'object') {
+						event = seg.event;
+					} else {
+						event = seg.footprint.eventDef;
+					}
+					return trigger(that, 'eventRightclick', this, event, ev);
 				} else {
 					// Users of this library may add custom content inside
 					// FullCalendar's DOM structure, eg. popovers. We don't want
@@ -45,12 +73,16 @@
 							// FullCalendar >= 2.5.0:
 							that.prepareHits();
 							var hit = that.queryHit(ev.pageX, ev.pageY);
-							cell = that.getHitSpan(hit);
+							if (typeof that.getHitSpan === 'function') {
+								// FullCalendar >= 2.5.0 && < 3.5.0:
+								cell = that.getHitSpan(hit);
+							} else {
+								// FullCalendar >= 3.5.0:
+								cell = hit.component.getCellRange(hit.row, hit.col);
+							}
 						}
 						if (cell)
-							return that[trigger](
-								'dayRightclick', null, cell.start, ev
-							);
+							return trigger(that, 'dayRightclick', null, cell.start, ev);
 					}
 				}
 			});
