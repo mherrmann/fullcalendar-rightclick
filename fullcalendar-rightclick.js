@@ -13,7 +13,7 @@
 			originalRender.call(this);
 			if (! this.el.data('fullcalendar-rightclick')) {
 				this.registerRightclickListener();
-				this.el.data('fullcalendar-rightclick', true)
+				this.el.data('fullcalendar-rightclick', true);
 			}
 		};
 		function trigger() {
