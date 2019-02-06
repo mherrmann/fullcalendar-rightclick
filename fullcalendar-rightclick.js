@@ -22,7 +22,7 @@
 		function oldTrigger(triggerFn) {
 			return function trigger(that, jsEventName, view, dateOrEvent, jsEvent) {
 				return that[triggerFn](jsEventName, view, dateOrEvent, jsEvent)
-			}
+			};
 		}
 		if (typeof View.prototype.publiclyTrigger === 'function') {
 			if (View.prototype.publiclyTrigger.toString().match(/name, thisObj/)) {
@@ -33,11 +33,11 @@
 				// FullCalendar >= 3.5.0:
 				trigger = function (that, jsEventName, view, dateOrEvent, jsEvent) {
 					return that.publiclyTrigger(jsEventName, [ dateOrEvent, jsEvent, view ]);
-				}
+				};
 			}
 		} else {
 			// FullCalendar < 3.1.0:
-			trigger = oldTrigger('trigger')
+			trigger = oldTrigger('trigger');
 		}
 		View.prototype.registerRightclickListener = function() {
 			var that = this;
@@ -86,7 +86,7 @@
 					}
 				}
 			});
-		}
+		};
 	}
 	var fc = $.fullCalendar;
 	monkeyPatchViewClass(fc.views.agenda);
