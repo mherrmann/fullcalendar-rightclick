@@ -70,12 +70,56 @@
 		return loadScript("https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/" + version + "/fullcalendar.js");
 	}
 
+
+	function simulateRightClickEvent(el) {
+		var ev = jQuery.Event("contextmenu");
+		el.find(".fc-event").trigger(ev);
+	}
+
+	function simulateRightClickDay(el, x, y) {
+		var ev = jQuery.Event("contextmenu");
+		if (x && y) {
+			// qUnit fixture is located 10000 px off screen in X and Y coordinates
+			ev.pageX = x - 10000;
+			ev.pageY = y - 10000;
+		}
+		el.find(".fc-day").trigger(ev);
+	}
+
 	versions.forEach(function(version) {
-		var events = {
+		var ctx = {
 			dayRightclick: null,
 			eventRightclick: null,
-			el: null
+			month: null,
+			week: null,
+			day: null,
 		}
+
+		function newCalendar(view) {
+			var el = $('#qunit-fixture').append('<div></div>');
+			el.fullCalendar({
+				dayRightclick: function(date, jsEvent, view) {
+					ctx.dayRightclick(date, jsEvent, view);
+					return false;
+				},
+				eventRightclick: function(event, jsEvent, view) {
+					ctx.eventRightclick(event, jsEvent, view);
+					return false;
+				},
+				defaultDate: '2015-02-12',
+				defaultView: view,
+				editable: true,
+				eventLimit: true,
+				events: [
+					{
+						title: 'All Day Event',
+						start: '2015-02-01'
+					},
+				],
+			})
+			return el;
+		}
+
 		QUnit.module('FullCalendar version: ' + version, {
 			before: function() {
 				return setVersion(version).then(function() {
@@ -83,29 +127,12 @@
 				});
 			},
 			beforeEach: function() {
-				events.eventRightclick = events.dayRightclick = function(date, jsEvent, view) {
+				ctx.eventRightclick = ctx.dayRightclick = function(date, jsEvent, view) {
 					throw new Error("Event not intercepted");
 				},
-				events.el = $('#qunit-fixture').append('<div></div>');
-				events.el.fullCalendar({
-					dayRightclick: function(date, jsEvent, view) {
-						events.dayRightclick(date, jsEvent, view);
-						return false;
-					},
-					eventRightclick: function(event, jsEvent, view) {
-						events.eventRightclick(event, jsEvent, view);
-						return false;
-					},
-					defaultDate: '2015-02-12',
-					editable: true,
-					eventLimit: true,
-					events: [
-						{
-							title: 'All Day Event',
-							start: '2015-02-01'
-						},
-					],
-				})
+				ctx.month = newCalendar('month');
+				ctx.week = newCalendar('week');
+				ctx.day = newCalendar('day');
 			}
 		}, function() {
 			QUnit.test('loads', function(assert) {
@@ -120,27 +147,59 @@
 				}
 				assert.equal(jQuery.fullCalendar.version, v);
 			});
-			QUnit.test('right-click on event', function(assert) {
+			QUnit.test('right-click on event in month view', function(assert) {
 				var done = assert.async();
-				events.eventRightclick = function(event) {
+				ctx.eventRightclick = function(event) {
 					assert.equal(typeof event, 'object', 'receives the event object');
 					assert.equal(typeof event.title, 'string', 'event object has title');
 					done();
 				}
-				events.el.find(".fc-event").trigger("contextmenu");
+				simulateRightClickEvent(ctx.month);
 			})
-			QUnit.test('right-click on day', function(assert) {
+			QUnit.test('right-click on day in month view', function(assert) {
 				var done = assert.async();
-				events.dayRightclick = function(date) {
+				ctx.dayRightclick = function(date) {
 					assert.ok(moment.isMoment(date), 'receives the date')
 					done();
 				}
-				var ev = jQuery.Event("contextmenu");
-				// qUnit fixture is located 10000 px off screen in X and Y coordinates
 				// 235x360 is a location on the calendar that's not on an event.
-				ev.pageX = 235 - 10000;
-				ev.pageY = 360 - 10000;
-				events.el.find(".fc-day").trigger(ev);
+				simulateRightClickDay(ctx.month, 235, 360);
+			})
+			QUnit.test('right-click on event in week view', function(assert) {
+				var done = assert.async();
+				ctx.eventRightclick = function(event) {
+					assert.equal(typeof event, 'object', 'receives the event object');
+					assert.equal(typeof event.title, 'string', 'event object has title');
+					done();
+				}
+				simulateRightClickEvent(ctx.week);
+			})
+			QUnit.test('right-click on day in week view', function(assert) {
+				var done = assert.async();
+				ctx.dayRightclick = function(date) {
+					assert.ok(moment.isMoment(date), 'receives the date')
+					done();
+				}
+				// 235x360 is a location on the calendar that's not on an event.
+				simulateRightClickDay(ctx.week, 235, 360);
+			})
+			QUnit.test('right-click on event in day view', function(assert) {
+				var done = assert.async();
+				ctx.eventRightclick = function(event) {
+					assert.equal(typeof event, 'object', 'receives the event object');
+					assert.equal(typeof event.title, 'string', 'event object has title');
+					done();
+				}
+				simulateRightClickEvent(ctx.day);
+			})
+			QUnit.test('right-click on day in day view', function(assert) {
+				var done = assert.async();
+				ctx.dayRightclick = function(date) {
+					assert.ok(moment.isMoment(date), 'receives the date')
+					done();
+				}
+				// 235x360 is a location on the calendar that's not on an event.
+				simulateRightClickDay(ctx.day, 235, 360);
 			})
 		});
 	});
