@@ -78,7 +78,15 @@
 								cell = that.getHitSpan(hit);
 							} else {
 								// FullCalendar >= 3.5.0:
-								cell = hit.component.getCellRange(hit.row, hit.col);
+								if(hit.row) {
+									cell = hit.component.getCellRange(hit.row, hit.col);
+								} else {
+									var componentFootprint = hit.component.getSafeHitFootprint(hit);
+									if (componentFootprint) {
+										var dateProfile = that.calendar.footprintToDateProfile(componentFootprint);
+										cell = { start: dateProfile.start, end: dateProfile.end };
+									}
+								}
 							}
 						}
 						if (cell)
