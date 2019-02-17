@@ -106,7 +106,7 @@
 					ctx.eventRightclick(event, jsEvent, view);
 					return false;
 				},
-				defaultDate: '2015-02-12',
+				defaultDate: '2015-02-1',
 				defaultView: view,
 				editable: true,
 				eventLimit: true,
@@ -129,10 +129,7 @@
 			beforeEach: function() {
 				ctx.eventRightclick = ctx.dayRightclick = function(date, jsEvent, view) {
 					throw new Error("Event not intercepted");
-				},
-				ctx.month = newCalendar('month');
-				ctx.week = newCalendar('week');
-				ctx.day = newCalendar('day');
+				}
 			}
 		}, function() {
 			QUnit.test('loads', function(assert) {
@@ -147,62 +144,34 @@
 				}
 				assert.equal(jQuery.fullCalendar.version, v);
 			});
-			QUnit.test('right-click on event in month view', function(assert) {
-				var done = assert.async();
-				ctx.eventRightclick = function(event) {
-					assert.equal(typeof event, 'object', 'receives the event object');
-					assert.equal(typeof event.title, 'string', 'event object has title');
-					done();
-				}
-				simulateRightClickEvent(ctx.month);
-			})
-			QUnit.test('right-click on day in month view', function(assert) {
-				var done = assert.async();
-				ctx.dayRightclick = function(date) {
-					assert.ok(moment.isMoment(date), 'receives the date')
-					done();
-				}
-				// 235x360 is a location on the calendar that's not on an event.
-				simulateRightClickDay(ctx.month, 235, 360);
-			})
-			QUnit.test('right-click on event in week view', function(assert) {
-				var done = assert.async();
-				ctx.eventRightclick = function(event) {
-					assert.equal(typeof event, 'object', 'receives the event object');
-					assert.equal(typeof event.title, 'string', 'event object has title');
-					done();
-				}
-				simulateRightClickEvent(ctx.week);
-			})
-			QUnit.test('right-click on day in week view', function(assert) {
-				var done = assert.async();
-				ctx.dayRightclick = function(date) {
-					assert.ok(moment.isMoment(date), 'receives the date')
-					done();
-				}
-				// 235x360 is a location on the calendar that's not on an event.
-				simulateRightClickDay(ctx.week, 235, 360);
-			})
-			QUnit.test('right-click on event in day view', function(assert) {
-				var done = assert.async();
-				ctx.eventRightclick = function(event) {
-					assert.equal(typeof event, 'object', 'receives the event object');
-					assert.equal(typeof event.title, 'string', 'event object has title');
-					done();
-				}
-				simulateRightClickEvent(ctx.day);
-			})
-			QUnit.test('right-click on day in day view', function(assert) {
-				var done = assert.async();
-				ctx.dayRightclick = function(date) {
-					assert.ok(moment.isMoment(date), 'receives the date')
-					done();
-				}
-				// 235x360 is a location on the calendar that's not on an event.
-				simulateRightClickDay(ctx.day, 235, 360);
+			[ 'month', 'basicWeek', 'basicDay', 'agendaWeek', 'agendaDay' ].forEach(function(view) {
+				QUnit.test('right-click on day in ' + view + ' view', function(assert) {
+					var done = assert.async();
+					ctx.dayRightclick = function(date) {
+						assert.ok(moment.isMoment(date), 'receives the date')
+						done();
+					}
+					// 235x360 is a location on the calendar that's not on an event.
+					simulateRightClickDay(newCalendar(view), 235, 360);
+				})
+				QUnit.test('right-click on event in ' + view + ' view', function(assert) {
+					var done = assert.async();
+					ctx.eventRightclick = function(event) {
+						assert.equal(typeof event, 'object', 'receives the event object');
+						assert.equal(typeof event.title, 'string', 'event object has title');
+						done();
+					}
+					simulateRightClickEvent(newCalendar(view));
+				})
 			})
 		});
 	});
 </script>
 <style>
+/** /
+#qunit-fixture {
+	position: unset;
+}
+/** */
+
 </style>

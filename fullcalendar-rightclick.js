@@ -1,5 +1,5 @@
 /*!
- * fullcalendar-rightclick v1.9
+ * fullcalendar-rightclick v2.0
  * Docs & License: https://github.com/mherrmann/fullcalendar-rightclick
  * (c) 2015 Michael Herrmann
  */
@@ -13,7 +13,7 @@
 			originalRender.call(this);
 			if (! this.el.data('fullcalendar-rightclick')) {
 				this.registerRightclickListener();
-				this.el.data('fullcalendar-rightclick', true)
+				this.el.data('fullcalendar-rightclick', true);
 			}
 		};
 		function trigger() {
@@ -22,7 +22,7 @@
 		function oldTrigger(triggerFn) {
 			return function trigger(that, jsEventName, view, dateOrEvent, jsEvent) {
 				return that[triggerFn](jsEventName, view, dateOrEvent, jsEvent)
-			}
+			};
 		}
 		if (typeof View.prototype.publiclyTrigger === 'function') {
 			if (View.prototype.publiclyTrigger.toString().match(/name, thisObj/)) {
@@ -33,11 +33,11 @@
 				// FullCalendar >= 3.5.0:
 				trigger = function (that, jsEventName, view, dateOrEvent, jsEvent) {
 					return that.publiclyTrigger(jsEventName, [ dateOrEvent, jsEvent, view ]);
-				}
+				};
 			}
 		} else {
 			// FullCalendar < 3.1.0:
-			trigger = oldTrigger('trigger')
+			trigger = oldTrigger('trigger');
 		}
 		View.prototype.registerRightclickListener = function() {
 			var that = this;
@@ -78,7 +78,14 @@
 								cell = that.getHitSpan(hit);
 							} else {
 								// FullCalendar >= 3.5.0:
-								cell = hit.component.getCellRange(hit.row, hit.col);
+								if (hit.row) {
+									cell = hit.component.getCellRange(hit.row, hit.col);
+								} else {
+									var componentFootprint = hit.component.getSafeHitFootprint(hit);
+									if (componentFootprint) {
+										cell = that.calendar.footprintToDateProfile(componentFootprint);
+									}
+								}
 							}
 						}
 						if (cell)
@@ -86,7 +93,7 @@
 					}
 				}
 			});
-		}
+		};
 	}
 	var fc = $.fullCalendar;
 	monkeyPatchViewClass(fc.views.agenda);
